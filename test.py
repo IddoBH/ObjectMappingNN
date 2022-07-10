@@ -1,10 +1,14 @@
 import os
 
+import torch
 from PIL import Image, ImageDraw
+from dataset_maker import DATASET_PATH, get_dataset, make_tensors
+from mapper import objectMapper
 
-DATASET_PATH = ""
 OUT_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/outputs"
-OUT_NAME = "cwr"
+OUT_NAME = "circle_centers"
+MODEL_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models/circle_centers.pth"
+
 
 def test_loop(model, X, annotations, image_list):
     predictions = model.forward(X)
@@ -29,9 +33,19 @@ def test_loop(model, X, annotations, image_list):
         im_info = list(filter(lambda im: im['id'] == im_id, image_list))[0]
         im = Image.open(os.path.join(DATASET_PATH, 'val', im_info['file_name']))
 
-        # Draw line
+        # Draw
         draw = ImageDraw.Draw(im)
         draw.point(centers, fill='red')
 
         # Show image
         im.save(os.path.join(out_dir, im_info['file_name']))
+
+
+if __name__ == '__main__':
+    print("making nn")
+    model = objectMapper(4)
+    model.load_state_dict(torch.load(MODEL_PATH))
+    test_image_list, test_annotations, test_categories = get_dataset(os.path.join(DATASET_PATH, 'val'), prt=True)
+    test_X, test_y, test_mask = make_tensors(test_image_list, test_annotations, test_categories)
+    test_loop(model, test_X, test_annotations, test_image_list)
+    print("Done")

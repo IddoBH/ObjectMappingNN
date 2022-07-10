@@ -4,6 +4,10 @@ import os
 import numpy as np
 import torch as torch
 from PIL import ImageDraw, ImageOps, Image
+
+DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/circles"
+
+
 ROI_SIZE = 32
 
 MASKS = {
