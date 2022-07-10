@@ -1,0 +1,45 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="3">
+            <item index="0" class="java.lang.String" itemvalue="pandas" />
+            <item index="1" class="java.lang.String" itemvalue="numpy" />
+            <item index="2" class="java.lang.String" itemvalue="xlrd" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N802" />
+          <option value="N806" />
+          <option value="N801" />
+          <option value="N813" />
+          <option value="N803" />
+          <option value="N812" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyTypeCheckerInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="bool.remove" />
+          <option value="bool.append" />
+          <option value="str.__sub__" />
+          <option value="typing.Iterator.__add__" />
+          <option value="General.General_ut.Decorators_ut.WarnOnFail" />
+          <option value="General.Terminal.Argumants.TerminalArgs.__getitem__" />
+          <option value="mp_main.MinimalPitchArgs.cols" />
+          <option value="mp_main.MinimalPitchArgs.columns" />
+          <option value="logging.PROGRESS" />
+          <option value="logging.Logger.progress" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
