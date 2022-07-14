@@ -2,12 +2,12 @@ import os
 
 import torch
 from PIL import Image, ImageDraw
-from dataset_maker import DATASET_PATH, get_dataset, make_tensors, MASKS
+from dataset_maker import DATASET_PATH, get_dataset, make_tensors, MASKS, ROI_SIZE
 from mapper import objectMapper
 
 OUT_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/outputs"
-OUT_NAME = "cat"
-MODEL_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models/circles_and_triangles.pth"
+OUT_NAME = "trio"
+MODEL_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models/triangles.pth"
 
 
 def test_loop(model, X, annotations, image_list):
@@ -52,12 +52,12 @@ def add_triangle_test(ann, bbox, center, image_dict):
 
 
 def get_triangle_params_test(bbox, center):
-    tx1 = round(center[0].item() * (bbox[2] / 32) + bbox[0])
-    ty1 = round(center[1].item() * (bbox[3] / 32) + bbox[1])
-    tx2 = round(center[2].item() * (bbox[2] / 32) + bbox[0])
-    ty2 = round(center[3].item() * (bbox[3] / 32) + bbox[1])
-    tx3 = round(center[4].item() * (bbox[2] / 32) + bbox[0])
-    ty3 = round(center[5].item() * (bbox[3] / 32) + bbox[1])
+    tx1 = round(center[0].item() * (bbox[2] / ROI_SIZE) + bbox[0])
+    ty1 = round(center[1].item() * (bbox[3] / ROI_SIZE) + bbox[1])
+    tx2 = round(center[2].item() * (bbox[2] / ROI_SIZE) + bbox[0])
+    ty2 = round(center[3].item() * (bbox[3] / ROI_SIZE) + bbox[1])
+    tx3 = round(center[4].item() * (bbox[2] / ROI_SIZE) + bbox[0])
+    ty3 = round(center[5].item() * (bbox[3] / ROI_SIZE) + bbox[1])
     return tx1, tx2, tx3, ty1, ty2, ty3
 
 
@@ -67,8 +67,8 @@ def add_ball_test(ann, bbox, center, image_dict):
 
 
 def get_ball_params_test(bbox, center):
-    tx = round(center[0].item() * (bbox[2] / 32) + bbox[0])
-    ty = round(center[1].item() * (bbox[3] / 32) + bbox[1])
+    tx = round(center[0].item() * (bbox[2] / ROI_SIZE) + bbox[0])
+    ty = round(center[1].item() * (bbox[3] / ROI_SIZE) + bbox[1])
     tr = round(center[2].item() * (bbox[2] + bbox[3]) / 64)
     return tr, tx, ty
 

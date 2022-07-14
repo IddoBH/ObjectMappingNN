@@ -33,5 +33,5 @@ if __name__ == '__main__':
     print("training")
     train_loop(model, train_X, train_y, train_mask, criterion, optimizer, epochs)
     print("Saving")
-    torch.save(model.state_dict(), os.path.join(MODEL_SAVE_DIR_PATH, "circles_and_triangles.pth"))
+    torch.save(model.state_dict(), os.path.join(MODEL_SAVE_DIR_PATH, "triangles.pth"))
     print("Done!")

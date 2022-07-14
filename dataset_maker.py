@@ -5,10 +5,10 @@ import numpy as np
 import torch as torch
 from PIL import ImageDraw, ImageOps, Image
 
-DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/triangles"
+DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/triangles_only"
 
 
-ROI_SIZE = 32
+ROI_SIZE = 64
 
 MASKS = {
     "triangle"   : [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0.],
