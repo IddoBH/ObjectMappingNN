@@ -3,17 +3,23 @@ import os
 
 import numpy as np
 import torch as torch
-from PIL import ImageDraw, ImageOps, Image
+from PIL import Image, ImageOps
 
 DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/triangles_only"
 
-
-ROI_SIZE = 64
+ROI_SIZE = 32
 
 MASKS = {
-    "triangle"   : [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0.],
-    "static_ball": [0., 0., 0., 0., 0., 0., 1., 1., 1., 0., 0., 0.],
-    "ball"       : [0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1.]
+    "triangle"        : [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "static_rectangle": [0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "static_ball"     : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "ceiling"         : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "floor"           : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "ball"            : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "rectangle"       : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "cart"            : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+    "pendulum"        : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 0., 0., 0., 0.],
+    "spring"          : [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1.]
 }
 
 
@@ -37,31 +43,83 @@ def make_target_tensor(annotations):
     for ann in annotations:
         bbox = ann['bbox']
         if ann['category_id'] == 1:
-            tx1 = point_transformation_x(bbox, ann['obj_params']['X_corner_1'])
-            ty1 = point_transformation_y(bbox, ann['obj_params']['Y_corner_1'])
-            tx2 = point_transformation_x(bbox, ann['obj_params']['X_corner_2'])
-            ty2 = point_transformation_y(bbox, ann['obj_params']['Y_corner_2'])
-            tx3 = point_transformation_x(bbox, ann['obj_params']['X_corner_3'])
-            ty3 = point_transformation_y(bbox, ann['obj_params']['Y_corner_3'])
-            targets.append([tx1, ty1, tx2, ty2, tx3, ty3, 0., 0., 0., 0., 0., 0.])
+            tx1, tx2, tx3, ty1, ty2, ty3 = get_triangle_params(ann, bbox)
+            targets.append([tx1, ty1, tx2, ty2, tx3, ty3, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
             masks.append(MASKS["triangle"])
+        elif ann['category_id'] == 2:
+            tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4 = get_rectangle_params(ann, bbox)
+            targets.append([0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+            masks.append(MASKS["static_rectangle"])
         elif ann['category_id'] == 3:
             tr, tx, ty = get_ball_params(ann, bbox)
-            targets.append([0., 0., 0., 0., 0., 0., tx, ty, tr, 0., 0., 0.])
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx, ty, tr, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
             masks.append(MASKS["static_ball"])
+        elif ann['category_id'] == 4:
+            tx1, tx2, ty1, ty2 = get_line_params(ann, bbox)
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+            masks.append(MASKS["ceiling"])
+        elif ann['category_id'] == 5:
+            tx1, tx2, ty1, ty2 = get_line_params(ann, bbox)
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+            masks.append(MASKS["floor"])
         elif ann['category_id'] == 6:
             tr, tx, ty = get_ball_params(ann, bbox)
-            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., tx, ty, tr])
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx, ty, tr, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
             masks.append(MASKS["ball"])
+        elif ann['category_id'] == 7:
+            tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4 = get_rectangle_params(ann, bbox)
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+            masks.append(MASKS["rectangle"])
+        elif ann['category_id'] == 8:
+            tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4, tr, txc1, tyc1, txc2, tyc2 = get_cart_params(ann, bbox)
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4, txc1, tyc1, txc2, tyc2, tr, 0., 0., 0., 0., 0., 0., 0., 0.])
+            masks.append(MASKS["cart"])
+        elif ann['category_id'] == 9:
+            tx1, tx2, ty1, ty2 = get_line_params(ann, bbox)
+            targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, 0., 0., 0., 0.])
+            masks.append(MASKS["pendulum"])
+        elif ann['category_id'] == 10:
+            pass
     return targets, masks
 
 
+def get_line_params(ann, bbox):
+    tx1 = point_transformation_x(bbox, ann['obj_params']['X_corner_1'])
+    ty1 = point_transformation_y(bbox, ann['obj_params']['Y_corner_1'])
+    tx2 = point_transformation_x(bbox, ann['obj_params']['X_corner_2'])
+    ty2 = point_transformation_y(bbox, ann['obj_params']['Y_corner_2'])
+    return tx1, tx2, ty1, ty2
+
+
+def get_triangle_params(ann, bbox):
+    tx1, tx2, ty1, ty2 = get_line_params(ann, bbox)
+    tx3 = point_transformation_x(bbox, ann['obj_params']['X_corner_3'])
+    ty3 = point_transformation_y(bbox, ann['obj_params']['Y_corner_3'])
+    return tx1, tx2, tx3, ty1, ty2, ty3
+
+
+def get_rectangle_params(ann, bbox):
+    tx1, tx2, tx3, ty1, ty2, ty3 = get_triangle_params(ann, bbox)
+    tx4 = point_transformation_x(bbox, ann['obj_params']['X_corner_4'])
+    ty4 = point_transformation_y(bbox, ann['obj_params']['Y_corner_4'])
+    return tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4
+
+
+def get_cart_params(ann, bbox):
+    tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4 = get_rectangle_params(ann, bbox)
+    tr, txc1, tyc1 = get_ball_params(ann, bbox)
+    txc2 = point_transformation_x(bbox, ann['obj_params']['X_center_2'])
+    tyc2 = point_transformation_y(bbox, ann['obj_params']['Y_center_2'])
+    return tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4, tr, txc1, tyc1, txc2, tyc2
+
+
 def point_transformation_y(bbox, point):
-    return (point - bbox[1]) * (32 / bbox[3])
+    return (point - bbox[1]) * (ROI_SIZE / bbox[3])
 
 
 def point_transformation_x(bbox, point):
-    return (point - bbox[0]) * (32 / bbox[2])
+    return (point - bbox[0]) * (ROI_SIZE / bbox[2])
+
 
 
 def get_ball_params(ann, bbox):
@@ -72,7 +130,7 @@ def get_ball_params(ann, bbox):
 
 
 def radius_transformation(bbox, radius):
-    return radius * (64 / (bbox[2] + bbox[3]))
+    return radius * (ROI_SIZE / bbox[2])
 
 
 def crop_img(img, ann):

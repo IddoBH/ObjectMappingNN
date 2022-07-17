@@ -25,7 +25,7 @@ if __name__ == '__main__':
     print("getting data")
     train_image_list, train_annotations, train_categories = get_dataset(os.path.join(DATASET_PATH, 'train'), prt=True)
     print("making tensors")
-    train_X, train_y, train_mask = make_tensors(train_image_list, train_annotations, )
+    train_X, train_y, train_mask = make_tensors(train_image_list, train_annotations)
     print("prep")
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-5, momentum=.9)
