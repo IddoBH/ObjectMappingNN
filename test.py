@@ -66,7 +66,7 @@ def prepare_image_dict(annotations, predictions):
         elif ann['category_id'] == 9:
             add_line_test(ann, bbox, get_pred_slice(pred, "pendulum"), image_dict)
         elif ann['category_id'] == 10:
-            pass
+            add_line_test(ann, bbox, get_pred_slice(pred, "spring"), image_dict)
     return image_dict
 
 

@@ -79,7 +79,11 @@ def make_target_tensor(annotations):
             targets.append([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2, 0., 0., 0., 0.])
             masks.append(MASKS["pendulum"])
         elif ann['category_id'] == 10:
-            pass
+            tx1, tx2, ty1, ty2 = get_line_params(ann, bbox)
+            targets.append(
+                    [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                     0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., tx1, ty1, tx2, ty2])
+            masks.append(MASKS["spring"])
     return targets, masks
 
 
