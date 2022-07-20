@@ -6,8 +6,8 @@ from dataset_maker import DATASET_PATH, get_dataset, make_tensors, MASKS, ROI_SI
 from mapper import objectMapper
 
 OUT_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/outputs"
-OUT_NAME = "trio"
-MODEL_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models/triangles.pth"
+OUT_NAME = "all"
+MODEL_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models/all.pth"
 
 
 def test_loop(model, X, annotations, image_list, dataset_path=os.path.join(DATASET_PATH, 'val'), out_dir=os.path.join(OUT_PATH, OUT_NAME)):
@@ -26,6 +26,7 @@ def test_loop(model, X, annotations, image_list, dataset_path=os.path.join(DATAS
         draw = ImageDraw.Draw(im)
         for kp in centers:
             print(kp)
+            draw.rectangle(kp[2])
             if kp[0] == "ball":
                 draw.point(kp[1][0:2], fill='red')
                 draw.line([kp[1][0], kp[1][1], kp[1][0] + kp[1][2], kp[1][1]])
@@ -79,7 +80,7 @@ def get_pred_slice(pred, shape_name):
 
 def add_line_test(ann, bbox, center, image_dict):
     tx1, tx2, ty1, ty2 = get_line_params_test(bbox, center)
-    image_dict[ann['image_id']].append(("line", (tx1, ty1, tx2, ty2)))
+    image_dict[ann['image_id']].append(("line", (tx1, ty1, tx2, ty2), [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]))
 
 
 def get_line_params_test(bbox, center):
@@ -92,7 +93,7 @@ def get_line_params_test(bbox, center):
 
 def add_triangle_test(ann, bbox, center, image_dict):
     tx1, tx2, tx3, ty1, ty2, ty3 = get_triangle_params_test(bbox, center)
-    image_dict[ann['image_id']].append(("triangle", (tx1, ty1, tx2, ty2, tx3, ty3)))
+    image_dict[ann['image_id']].append(("triangle", (tx1, ty1, tx2, ty2, tx3, ty3), [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]))
 
 
 def get_triangle_params_test(bbox, center):
@@ -104,7 +105,7 @@ def get_triangle_params_test(bbox, center):
 
 def add_rectangle_test(ann, bbox, center, image_dict):
     tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4 = get_rectangle_params_test(bbox, center)
-    image_dict[ann['image_id']].append(("rectangle", (tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4)))
+    image_dict[ann['image_id']].append(("rectangle", (tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4), [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]))
 
 
 def get_rectangle_params_test(bbox, center):
@@ -116,7 +117,7 @@ def get_rectangle_params_test(bbox, center):
 
 def add_cart_test(ann, bbox, center, image_dict):
     tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4, txc1, tyc1, txc2, tyc2, tr = get_cart_params_test(bbox, center)
-    image_dict[ann['image_id']].append(("cart", (tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4, txc1, tyc1, txc2, tyc2, tr)))
+    image_dict[ann['image_id']].append(("cart", (tx1, ty1, tx2, ty2, tx3, ty3, tx4, ty4, txc1, tyc1, txc2, tyc2, tr), [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]))
 
 
 def get_cart_params_test(bbox, center):
@@ -128,7 +129,7 @@ def get_cart_params_test(bbox, center):
 
 def add_ball_test(ann, bbox, center, image_dict):
     tr, tx, ty = get_ball_params_test(bbox, center)
-    image_dict[ann['image_id']].append(("ball", (tx, ty, tr)))
+    image_dict[ann['image_id']].append(("ball", (tx, ty, tr), [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]))
 
 
 def get_ball_params_test(bbox, center, start=0):
@@ -143,8 +144,8 @@ if __name__ == '__main__':
     model = objectMapper(len(MASKS["ball"]))
     model.load_state_dict(torch.load(MODEL_PATH))
     print("getting dataset")
-    test_image_list, test_annotations, test_categories = get_dataset(os.path.join(DATASET_PATH, 'val'), prt=True)
+    test_image_list, test_annotations, test_categories = get_dataset("/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/rect/train", prt=True)
     test_X, test_y, test_mask = make_tensors(test_image_list, test_annotations)
     print("testing")
-    test_loop(model, test_X, test_annotations, test_image_list)
+    test_loop(model, test_X, test_annotations, test_image_list, "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/rect/train")
     print("Done")

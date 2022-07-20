@@ -139,6 +139,7 @@ def radius_transformation(bbox, radius):
 
 def crop_img(img, ann):
     bbox = ann['bbox']
+    print(bbox)
     cropped = img[bbox[1]:bbox[1] + bbox[3], bbox[0]:bbox[0] + bbox[2]]
     return np.asfarray(Image.fromarray(cropped).resize((ROI_SIZE, ROI_SIZE)))
 
