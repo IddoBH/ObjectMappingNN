@@ -5,7 +5,7 @@ import numpy as np
 import torch as torch
 from PIL import Image, ImageOps
 
-DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/triangles_only"
+DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/full_dataset"
 
 ROI_SIZE = 32
 
@@ -118,11 +118,11 @@ def get_cart_params(ann, bbox):
 
 
 def point_transformation_y(bbox, point):
-    return (point - bbox[1]) * (ROI_SIZE / bbox[3])
+    return (point - bbox[1]) * (ROI_SIZE / bbox[3]) if bbox[3] else point - bbox[1]
 
 
 def point_transformation_x(bbox, point):
-    return (point - bbox[0]) * (ROI_SIZE / bbox[2])
+    return (point - bbox[0]) * (ROI_SIZE / bbox[2]) if bbox[2] else point - bbox[0]
 
 
 
@@ -144,12 +144,12 @@ def crop_img(img, ann):
     return np.asfarray(Image.fromarray(cropped).resize((ROI_SIZE, ROI_SIZE)))
 
 
-def make_tensors(image_list, annotations):
+def make_tensors(image_list, annotations, path=DATASET_PATH):
     X = []
     y = []
     mask = []
     for img_info in image_list:
-        im_view = np.asarray(ImageOps.grayscale(Image.open(os.path.join(DATASET_PATH, "train", img_info['file_name']))))
+        im_view = np.asarray(ImageOps.grayscale(Image.open(os.path.join(path, img_info['file_name']))))
         im_ann = list(filter(lambda im: im['image_id'] == img_info['id'], annotations))
         one_image_y, one_img_mask = make_target_tensor(im_ann)
         y.extend(one_image_y)
