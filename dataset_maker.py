@@ -126,6 +126,7 @@ def point_transformation_x(bbox, point):
 
 
 
+
 def get_ball_params(ann, bbox):
     tx = point_transformation_x(bbox, ann['obj_params']['X_center'])
     ty = point_transformation_y(bbox, ann['obj_params']['Y_center'])
