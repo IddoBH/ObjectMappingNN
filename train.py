@@ -2,10 +2,10 @@ import os
 
 import torch
 
-from dataset_maker import get_dataset, make_tensors, DATASET_PATH, MASKS
+from dataset_maker import get_dataset, make_tensors, DATASET_PATH_train, MASKS
 from mapper import objectMapper
 
-MODEL_SAVE_DIR_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models"
+MODEL_SAVE_DIR_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models"
 
 
 def train_loop(model, X, y, mask, criterion, optimizer, epochs):
@@ -19,25 +19,29 @@ def train_loop(model, X, y, mask, criterion, optimizer, epochs):
         optimizer.step()
 
 
-def train(dataset="/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/rect/train"):
+def train(dataset, device):
     print("getting data")
     train_image_list, train_annotations, train_categories = get_dataset(dataset)
     print("making tensors")
     train_X, train_y, train_mask = make_tensors(train_image_list, train_annotations, dataset)
     print("training")
-    train_loop(model, train_X, train_y, train_mask, criterion, optimizer, epochs)
+    train_loop(model, train_X.to(device), train_y.to(device), train_mask.to(device), criterion, optimizer, epochs)
 
 
 if __name__ == '__main__':
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
     print("making nn")
     model = objectMapper(len(MASKS["ball"]))
+    model.to(device)
     print("prep")
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=1e-5, momentum=.9)
+    optimizer = torch.optim.Adam(model.parameters(), lr=5e-5)
     epochs = 2000
     for i in range(1,101):
         print(f'running set_{i}')
-        train(os.path.join(DATASET_PATH, 'train', f'set_{i}'))
+        train(os.path.join(DATASET_PATH_train, 'train', f'set_{i}'), device)
     print("Saving")
-    torch.save(model.state_dict(), os.path.join(MODEL_SAVE_DIR_PATH, "all.pth"))
+    torch.save(model.state_dict(), os.path.join(MODEL_SAVE_DIR_PATH, "adam_gpu.pth"))
     print("Done!")
+

@@ -1,16 +1,16 @@
 import os
-
 import torch
 from PIL import Image, ImageDraw
-from dataset_maker import DATASET_PATH, get_dataset, make_tensors, MASKS, ROI_SIZE
+from dataset_maker import DATASET_PATH_test, get_dataset, make_X, MASKS, ROI_SIZE
 from mapper import objectMapper
 
-OUT_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/outputs"
-OUT_NAME = "all"
-MODEL_PATH = "/Users/iddobar-haim/PycharmProjects/ObjectMappingNN/models/all.pth"
+OUT_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/outputs/nn_real_1"
+OUT_NAME = "nn_real_1"
+MODEL_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models/adam_gpu.pth"
+DSP = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
 
 
-def test_loop(model, X, annotations, image_list, dataset_path=os.path.join(DATASET_PATH, 'val'), out_dir=os.path.join(OUT_PATH, OUT_NAME)):
+def test_loop(model, X, annotations, image_list, dataset_path, out_dir):
     predictions = model.forward(X) if model else X
     image_dict = prepare_image_dict(annotations, predictions)
 
@@ -26,7 +26,7 @@ def test_loop(model, X, annotations, image_list, dataset_path=os.path.join(DATAS
         draw = ImageDraw.Draw(im)
         for kp in centers:
             print(kp)
-            draw.rectangle(kp[2])
+            # draw.rectangle(kp[2])
             if kp[0] == "ball":
                 draw.point(kp[1][0:2], fill='red')
                 draw.line([kp[1][0], kp[1][1], kp[1][0] + kp[1][2], kp[1][1]])
@@ -144,8 +144,8 @@ if __name__ == '__main__':
     model = objectMapper(len(MASKS["ball"]))
     model.load_state_dict(torch.load(MODEL_PATH))
     print("getting dataset")
-    test_image_list, test_annotations, test_categories = get_dataset("/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/rect/train", prt=True)
-    test_X, test_y, test_mask = make_tensors(test_image_list, test_annotations)
+    test_image_list, test_annotations, test_categories = get_dataset(DSP, prt=True)
+    test_X = make_X(test_image_list, test_annotations, DSP)
     print("testing")
-    test_loop(model, test_X, test_annotations, test_image_list, "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/rect/train")
+    test_loop(model, test_X, test_annotations, test_image_list, DSP, OUT_PATH)
     print("Done")

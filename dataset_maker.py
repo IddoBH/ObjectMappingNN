@@ -5,7 +5,8 @@ import numpy as np
 import torch as torch
 from PIL import Image, ImageOps
 
-DATASET_PATH = "/Users/iddobar-haim/Library/CloudStorage/GoogleDrive-idodibh@gmail.com/My Drive/ARP/full_dataset"
+DATASET_PATH_test = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/iddos_drive/full_dataset/train/set_100"
+DATASET_PATH_train = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/iddos_drive/full_dataset/"
 
 ROI_SIZE = 32
 
@@ -125,8 +126,6 @@ def point_transformation_x(bbox, point):
     return (point - bbox[0]) * (ROI_SIZE / bbox[2]) if bbox[2] else point - bbox[0]
 
 
-
-
 def get_ball_params(ann, bbox):
     tx = point_transformation_x(bbox, ann['obj_params']['X_center'])
     ty = point_transformation_y(bbox, ann['obj_params']['Y_center'])
@@ -139,13 +138,25 @@ def radius_transformation(bbox, radius):
 
 
 def crop_img(img, ann):
-    bbox = ann['bbox']
+    bbox = tuple(map(round, ann['bbox']))
     print(bbox)
     cropped = img[bbox[1]:bbox[1] + bbox[3], bbox[0]:bbox[0] + bbox[2]]
     return np.asfarray(Image.fromarray(cropped).resize((ROI_SIZE, ROI_SIZE)))
 
 
-def make_tensors(image_list, annotations, path=DATASET_PATH):
+def make_X(image_list, annotations, path):
+    X = []
+    for img_info in image_list:
+        im_view = np.asarray(ImageOps.grayscale(Image.open(os.path.join(path, img_info['file_name']))))
+        im_ann = list(filter(lambda im: im['image_id'] == img_info['id'], annotations))
+        for ia in im_ann:
+            ci = crop_img(im_view, ia)
+            X.append(ci.flatten())
+    X = torch.tensor(np.asarray(X), dtype=torch.float32, requires_grad=True)
+    return X
+
+
+def make_tensors(image_list, annotations, path):
     X = []
     y = []
     mask = []
@@ -159,9 +170,9 @@ def make_tensors(image_list, annotations, path=DATASET_PATH):
             ci = crop_img(im_view, ia)
             X.append(ci.flatten())
 
-    X = torch.tensor(X, dtype=torch.float32, requires_grad=True)
-    y = torch.tensor(y, dtype=torch.float32, requires_grad=True)
-    mask = torch.tensor(mask, dtype=torch.float32, requires_grad=True)
+    X = torch.tensor(np.asarray(X), dtype=torch.float32, requires_grad=True)
+    y = torch.tensor(np.asarray(y), dtype=torch.float32, requires_grad=True)
+    mask = torch.tensor(np.asarray(mask), dtype=torch.float32, requires_grad=True)
     if True:
         print(X, X.shape)
         print(y, y.shape)
