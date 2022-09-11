@@ -5,8 +5,8 @@ import numpy as np
 import torch as torch
 from PIL import Image, ImageOps
 
-DATASET_PATH_test = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/iddos_drive/full_dataset/train/set_100"
-DATASET_PATH_train = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/iddos_drive/full_dataset/"
+DATASET_PATH_test = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
+DATASET_PATH_train = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
 
 ROI_SIZE = 32
 
@@ -89,6 +89,7 @@ def make_target_tensor(annotations):
 
 
 def get_line_params(ann, bbox):
+    print(ann)
     tx1 = point_transformation_x(bbox, ann['obj_params']['X_corner_1'])
     ty1 = point_transformation_y(bbox, ann['obj_params']['Y_corner_1'])
     tx2 = point_transformation_x(bbox, ann['obj_params']['X_corner_2'])
@@ -156,11 +157,13 @@ def make_X(image_list, annotations, path):
     return X
 
 
-def make_tensors(image_list, annotations, path):
+def make_tensors(image_list, annotations, path, limit=None):
+    if limit is None:
+        limit = 1#len(image_list)
     X = []
     y = []
     mask = []
-    for img_info in image_list:
+    for img_info in image_list[::limit]:
         im_view = np.asarray(ImageOps.grayscale(Image.open(os.path.join(path, img_info['file_name']))))
         im_ann = list(filter(lambda im: im['image_id'] == img_info['id'], annotations))
         one_image_y, one_img_mask = make_target_tensor(im_ann)
