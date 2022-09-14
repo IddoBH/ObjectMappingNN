@@ -7,6 +7,8 @@ from PIL import Image, ImageOps
 
 DATASET_PATH_test = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
 DATASET_PATH_train = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
+DATASET_PATH_test_gen = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/iddos_drive/full_dataset"
+DATASET_PATH_train_gen = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/iddos_drive/full_dataset"
 
 ROI_SIZE = 32
 
@@ -157,13 +159,12 @@ def make_X(image_list, annotations, path):
     return X
 
 
-def make_tensors(image_list, annotations, path, limit=None):
-    if limit is None:
-        limit = 1#len(image_list)
+def make_tensors(image_list, annotations, path):
     X = []
     y = []
     mask = []
-    for img_info in image_list[::limit]:
+    for ridx in torch.randint(len(image_list), size=(150,)):
+        img_info = image_list[ridx]
         im_view = np.asarray(ImageOps.grayscale(Image.open(os.path.join(path, img_info['file_name']))))
         im_ann = list(filter(lambda im: im['image_id'] == img_info['id'], annotations))
         one_image_y, one_img_mask = make_target_tensor(im_ann)
