@@ -2,21 +2,41 @@ import os
 
 import torch
 
-from dataset_maker import get_dataset, make_tensors, DATASET_PATH_train, DATASET_PATH_train_gen, MASKS
+from dataset_maker import get_dataset, make_tensors, DATASET_PATH_train, DATASET_PATH_train_gen, MASKS, make_tv
 from mapper import objectMapper
+from matplotlib import pyplot as plt
+
+MODEL_NAME = "with_partially_transposed_dataset.pth"
 
 MODEL_SAVE_DIR_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models"
 
 
-def train_loop(model, X, y, mask, criterion, optimizer, epochs):
+def train_loop(model, X_train, y_train, mask_train, X_val, y_val, mask_val, criterion, optimizer, epochs):
+    train_losses = []
+    val_losses = []
     for ep in range(epochs):
-        preds = model.forward(X)
-        preds = preds * mask
-        loss = criterion(preds, y)
-        print(f"Epoch: {ep + 1}", f"Loss: {loss}")
+        loss_t = predict(X_train, y_train, mask_train, model, criterion)
+        loss_v = predict(X_val, y_val, mask_val, model, criterion)
+        train_losses.append(loss_t.item())
+        val_losses.append(loss_v.item())
+        print(f"Epoch: {ep + 1}", f"Train Loss: {loss_t}", f"Val Loss: {loss_v}")
         optimizer.zero_grad()
-        loss.backward()
+        loss_t.backward()
         optimizer.step()
+    plt.plot(train_losses)
+    plt.plot(val_losses)
+    plt.savefig(os.path.join(MODEL_SAVE_DIR_PATH, os.path.splitext(MODEL_NAME)[0] + "_train_res.png"))
+    with open('/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/results.csv','a') as res_f:
+        res_f.write(f'{MODEL_NAME},{val_losses[-1]}\n')
+
+
+
+
+
+def predict(X, y, mask, model, criterion):
+    preds_t = model.forward(X)
+    preds_t = preds_t * mask
+    return criterion(preds_t, y)
 
 
 def train(dataset, device):
@@ -37,15 +57,10 @@ if __name__ == '__main__':
     print("prep")
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-5)
-    epochs = 3000
-    print("training real")
-    train(DATASET_PATH_train, device)
-    for i in range(1, 101):
-        print(f'running gen set_{i}')
-        train(os.path.join(DATASET_PATH_train_gen, 'train', f'set_{i}'), device)
-    print("training real")
-    train(DATASET_PATH_train, device)
+    epochs = 300000
+    X_train, y_train, mask_train, X_val, y_val, mask_val = make_tv()
+    train_loop(model, X_train.to(device), y_train.to(device), mask_train.to(device), X_val.to(device), y_val.to(device), mask_val.to(device), criterion, optimizer, epochs)
     print("Saving")
-    torch.save(model.state_dict(), os.path.join(MODEL_SAVE_DIR_PATH, "total_1.pth"))
+    torch.save(model.state_dict(), os.path.join(MODEL_SAVE_DIR_PATH, MODEL_NAME))
     print("Done!")
 

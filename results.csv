@@ -1,0 +1,6 @@
+model,result
+no_gen.pth,4.258846282958984
+with_gen.pth,3.3335204124450684
+with_gen.pth,3.618095874786377with_transposed_dataset.pth,4.289449214935303
+with_transposed_dataset.pth,3.4067065715789795
+with_partially_transposed_dataset.pth,2.9923133850097656

@@ -4,9 +4,9 @@ from PIL import Image, ImageDraw
 from dataset_maker import DATASET_PATH_test, get_dataset, make_X, MASKS, ROI_SIZE
 from mapper import objectMapper
 
-OUT_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/outputs/nn_real_2"
+OUT_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/outputs/transposed"
 OUT_NAME = "nn_real_1"
-MODEL_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models/smaller.pth"
+MODEL_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models/with_transposed_dataset.pth"
 DSP = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
 
 
@@ -28,20 +28,19 @@ def test_loop(model, X, annotations, image_list, dataset_path, out_dir):
             print(kp)
             # draw.rectangle(kp[2])
             if kp[0] == "ball":
-                draw.point(kp[1][0:2], fill='red')
-                draw.line([kp[1][0], kp[1][1], kp[1][0] + kp[1][2], kp[1][1]])
+                draw.line([kp[1][0], kp[1][1], kp[1][0] + kp[1][2], kp[1][1]],fill='red')
             elif kp[0] in ("triangle", "rectangle", "line"):
                 for i in range(0,len(kp[1]), 2):
-                    draw.line([kp[1][i]-5,kp[1][i+1],kp[1][i]+5,kp[1][i+1]])
-                    draw.line([kp[1][i], kp[1][i + 1] - 5, kp[1][i], kp[1][i + 1] + 5])
+                    draw.line([kp[1][i]-5,kp[1][i+1],kp[1][i]+5,kp[1][i+1]],fill='red')
+                    draw.line([kp[1][i], kp[1][i + 1] - 5, kp[1][i], kp[1][i + 1] + 5],fill='red')
                 # draw.point(kp[1], fill='red')
             elif kp[0] == "cart":
                 for i in range(0, 8, 2):
-                    draw.line([kp[1][i] - 5, kp[1][i + 1], kp[1][i] + 5, kp[1][i + 1]])
-                    draw.line([kp[1][i], kp[1][i + 1] - 5, kp[1][i], kp[1][i + 1] + 5])
+                    draw.line([kp[1][i] - 5, kp[1][i + 1], kp[1][i] + 5, kp[1][i + 1]],fill='red')
+                    draw.line([kp[1][i], kp[1][i + 1] - 5, kp[1][i], kp[1][i + 1] + 5],fill='red')
 
-                draw.line([kp[1][8], kp[1][9], kp[1][8] + kp[1][12], kp[1][9]])
-                draw.line([kp[1][10], kp[1][11], kp[1][10] + kp[1][12], kp[1][11]])
+                draw.line([kp[1][8], kp[1][9], kp[1][8] + kp[1][12], kp[1][9]],fill='red')
+                draw.line([kp[1][10], kp[1][11], kp[1][10] + kp[1][12], kp[1][11]],fill='red')
 
         # Show image
         im.save(os.path.join(out_dir, im_info['file_name']))
