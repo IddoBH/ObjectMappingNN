@@ -4,9 +4,9 @@ from PIL import Image, ImageDraw
 from dataset_maker import DATASET_PATH_test, get_dataset, make_X, MASKS, ROI_SIZE
 from mapper import objectMapper
 
-OUT_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/outputs/ptransposed"
+OUT_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/outputs/tss"
 OUT_NAME = "nn_real_1"
-MODEL_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models/with_partially_transposed_dataset.pth"
+MODEL_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models/triangle_special_sort.pth"
 DSP = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/real_images"
 
 

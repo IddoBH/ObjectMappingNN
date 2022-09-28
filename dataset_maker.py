@@ -67,6 +67,19 @@ def make_target_tensor(annotations, transpose=False):
         bbox = ann['bbox']
         if ann['category_id'] == 1:
             tx1, tx2, tx3, ty1, ty2, ty3 = get_triangle_params(ann, bbox, transpose)
+            dx12, dy12 = tx1 - tx2, ty1 - ty2
+            dx13, dy13 = tx1 - tx3, ty1 - ty3
+            dx23, dy23 = tx3 - tx2, ty3 - ty2
+            d12 = dx12*dx12 + dy12*dy12
+            d13 = dx13 * dx13 + dy13 * dy13
+            d23 = dx23 * dx23 + dy23 * dy23
+            if d12 > d13 and d12 > d23:
+                tx2, tx3 = tx3, tx2
+                ty2, ty3 = ty3, ty2
+            elif d23 > d13 and d23 > d12:
+                tx1, tx2 = tx2, tx1
+                ty1, ty2 = ty2, ty1
+
             targets.append(
                 [tx1, ty1, tx2, ty2, tx3, ty3, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
                  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
@@ -278,12 +291,17 @@ def make_tv():
 
     val_names = []
 
-    for idx, img_info in enumerate(train_image_list):
+    idx = 0
+    for img_info in train_image_list:
+        if "our" in img_info['file_name']:
+            continue
         if idx % 5:
             insert_annotations(X_train, y_train, mask_train, img_info, train_annotations, real_img_path)
         else:
             val_names.append(img_info['file_name'])
             insert_annotations(X_val, y_val, mask_val, img_info, train_annotations, real_img_path)
+        idx += 1
+    print(val_names)
 
     X_train = torch.tensor(np.asarray(X_train), dtype=torch.float32, requires_grad=True)
     y_train = torch.tensor(np.asarray(y_train), dtype=torch.float32, requires_grad=True)
