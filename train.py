@@ -6,7 +6,7 @@ from dataset_maker import get_dataset, make_tensors, DATASET_PATH_train, DATASET
 from mapper import objectMapper
 from matplotlib import pyplot as plt
 
-MODEL_NAME = "triangle_special_sort.pth"
+MODEL_NAME = "rectangle_special_sort.pth"
 
 MODEL_SAVE_DIR_PATH = "/home/shovalg@staff.technion.ac.il/PycharmProjects/ObjectMappingNN/models"
 

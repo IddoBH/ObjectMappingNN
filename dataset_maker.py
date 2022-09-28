@@ -158,7 +158,7 @@ def make_target_tensor(annotations, transpose=False):
 
 
 def sort_corners(corners):
-    return tuple(sorted(corners))
+    return list(sorted(corners))
 
 
 def get_line_params(ann, bbox, transpose):
@@ -190,8 +190,22 @@ def get_rectangle_params(ann, bbox, transpose):
     if transpose:
         tx4, ty4 = ty4, tx4
     sc = sort_corners(((tx1, ty1), (tx2, ty2), (tx3, ty3), (tx4, ty4)))
-    return sc[0][0], sc[1][0], sc[2][0], sc[3][0], sc[0][1], sc[1][1], sc[2][1], sc[3][
-        1]  # tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4
+
+    d1 = list(map(lambda point: ((point[0])**2)+((point[1])**2), sc))
+    idx = np.argmin(d1)
+    tx1, ty1 = sc.pop(idx)
+
+    d2 = list(map(lambda point: ((point[0] - ROI_SIZE)**2)+((point[1])**2), sc))
+    idx = np.argmin(d2)
+    tx2, ty2 = sc.pop(idx)
+
+    d3 = list(map(lambda point: ((point[0])**2)+((point[1] - ROI_SIZE)**2), sc))
+    idx = np.argmin(d3)
+    tx3, ty3 = sc.pop(idx)
+
+    tx4, ty4 = sc.pop()
+
+    return  tx1, tx2, tx3, tx4, ty1, ty2, ty3, ty4
 
 
 def get_cart_params(ann, bbox, transpose):
