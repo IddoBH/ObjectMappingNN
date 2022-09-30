@@ -196,11 +196,15 @@ def prepare_input(im_ann, im_view):
 
 def prepare_annotations(image_path):
     image_dir, image_name = os.path.split(image_path)
-    image_list, annotations, categories = get_dataset(image_dir)
     im_view = np.asarray(ImageOps.grayscale(Image.open(image_path)))
-    img_info = list(filter(lambda im: im['file_name'] == image_name, image_list))[0]
-    im_ann = list(filter(lambda im: im['image_id'] == img_info['id'], annotations))
-    return im_ann, im_view
+    with open(os.path.join(image_dir, "our_json_new_result.bbox.json")) as ann:
+        annotations = json.load(ann)
+
+    # image_list, annotations, categories = get_dataset(image_dir)
+    #
+    # img_info = list(filter(lambda im: im['file_name'] == image_name, image_list))[0]
+    # im_ann = list(filter(lambda im: im['image_id'] == img_info['id'], annotations))
+    return annotations, im_view
 
 
 def dump_output_to_json(output_dict, output_path):
